@@ -1,18 +1,19 @@
-"use client"
-
-import Image from "next/image";
 import { useState } from "react";
-import { ethers } from "ethers";  
+import ReactBorderWrapper from "react-border-wrapper";
 
-export default function Home() {
+import { ethers } from "ethers";
 
+function TornadoCashIndexerComponent(props)
+{
+  const [chainName, setChainName] = useState(props._chainName);
+  const [assetName, setAssetName] = useState(props._assetName);
+  const [assetQuantity, setAssetQuantity] = useState(props._assetQuantity);
   const [actualBlock, setActualBlock] = useState(0);
   const [block, setBlock] = useState(0);
   const [inputBlock, setInputBlock] = useState(null);
+  
 
-
-
-  let smartContractAddress = "0x84443CFd09A48AF6eF360C6976C5392aC5023a1F";
+  let smartContractAddress = props.scAddress;
 
   let smartContractAbi = [
     {
@@ -466,8 +467,10 @@ export default function Home() {
     }
   ];
 
-  let provider = new ethers.providers.JsonRpcProvider("https://arbitrum-mainnet.infura.io/v3/3188b3a12dcc4c7db1790ddbaee01150");
+  let _rpcUrl = props.rpcUrl;
+  let provider = new ethers.providers.JsonRpcProvider(_rpcUrl);
   let smartContractInstance = new ethers.Contract(smartContractAddress, smartContractAbi, provider);
+
 
 
   async function getActualBlockNumber() 
@@ -488,7 +491,7 @@ export default function Home() {
 
   async function queryEvents()
   {
-    const events = await smartContractInstance.queryFilter("Withdrawal", 231103501, 247744860);
+    const events = await smartContractInstance.queryFilter("Withdrawal", 242399441, 242399441);
 
     console.log("txEvents:")
     console.log("Events length: ", events.length);
@@ -499,13 +502,23 @@ export default function Home() {
     console.log(events[0].args);
   }
 
+  // const interval = setInterval(() => {
+  //   getActualBlockNumber();
+  // }, 15000);
+
+
+
 
 
   return (
-    <div>
-       <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      
-        <div>
+    <div className="App">
+      <ReactBorderWrapper>
+        <header>
+          <h1>chainQuerying: {chainName}</h1>
+          <h1>asset: {assetQuantity} {assetName}</h1>
+        </header>
+
+        <body style={{paddingTop: '1rem'}}>
           <div>
             <h1>TRACKING</h1>
 
@@ -527,8 +540,10 @@ export default function Home() {
               <h2>Block: {block}</h2>
             </div>
           </div>
-        </div>
-      </main>
+        </body>
+      </ReactBorderWrapper>
     </div>
-  );
+  ); 
 }
+
+export default TornadoCashIndexerComponent;
